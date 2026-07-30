@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #0d0d0f;
+  --color-bg-raised: #1a1a1d;
+  --color-bg-card: #17171a;
+  --color-border: #2a2a2e;
+  --color-orange: #ff8a00;
+  --color-orange-dim: #cc6f00;
+  --color-green: #4adeb0;
+  --color-text: #f5f5f4;
+  --color-text-dim: #9a9a9f;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-bg-raised: var(--color-bg-raised);
+  --color-bg-card: var(--color-bg-card);
+  --color-border: var(--color-border);
+  --color-orange: var(--color-orange);
+  --color-orange-dim: var(--color-orange-dim);
+  --color-green: var(--color-green);
+  --color-text: var(--color-text);
+  --color-text-dim: var(--color-text-dim);
+
+  --font-display: var(--font-anton);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Circuit trace background texture, used as a subtle ambient layer */
+.circuit-bg {
+  background-image:
+    linear-gradient(90deg, rgba(74, 222, 176, 0.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(74, 222, 176, 0.045) 1px, transparent 1px);
+  background-size: 42px 42px;
+  background-position: -1px -1px;
+}
+
+.circuit-glow {
+  background:
+    radial-gradient(600px circle at var(--x, 50%) var(--y, 0%), rgba(255, 138, 0, 0.12), transparent 60%);
+}
+
+/* Visible keyboard focus, always */
+:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection {
+  background: var(--color-orange);
+  color: #0d0d0f;
+}
+
+@keyframes ping-slow {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  75%, 100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.animate-ping-slow {
+  animation: ping-slow 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-33.3333%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 22s linear infinite;
+}
