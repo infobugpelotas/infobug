@@ -47,18 +47,38 @@ export async function POST(request: Request) {
       ? `Novo pedido de Delivery — ${payload.fields.nome ?? "sem nome"}`
       : `Nova mensagem de Contato — ${payload.fields.nome ?? "sem nome"}`;
 
+  const typeLabel = payload.type === "delivery" ? "Delivery de Equipamento" : "Contato Geral";
+
   const rows = Object.entries(payload.fields)
     .filter(([, value]) => value)
     .map(
-      ([key, value]) =>
-        `<tr><td style="padding:4px 12px 4px 0;color:#9a9a9f;font-family:sans-serif;font-size:14px;"><strong>${key}</strong></td><td style="padding:4px 0;font-family:sans-serif;font-size:14px;">${value}</td></tr>`
+      ([key, value]) => `
+        <tr>
+          <td style="padding:10px 16px;border-bottom:1px solid #e5e5e5;color:#6b6b6b;font-family:Arial,Helvetica,sans-serif;font-size:13px;text-transform:capitalize;white-space:nowrap;vertical-align:top;">
+            ${key}
+          </td>
+          <td style="padding:10px 16px;border-bottom:1px solid #e5e5e5;color:#1a1a1a;font-family:Arial,Helvetica,sans-serif;font-size:14px;">
+            ${value}
+          </td>
+        </tr>`
     )
     .join("");
 
   const html = `
-    <div style="background:#0d0d0f;padding:24px;">
-      <table style="background:#17171a;border-radius:8px;padding:16px;width:100%;max-width:480px;">
-        ${rows}
+    <div style="background:#f4f4f4;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+      <table style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #e5e5e5;">
+        <tr>
+          <td style="background:#ff8a00;padding:16px 24px;">
+            <span style="color:#0d0d0f;font-weight:bold;font-size:16px;">infobug — ${typeLabel}</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;">
+            <table style="width:100%;border-collapse:collapse;">
+              ${rows}
+            </table>
+          </td>
+        </tr>
       </table>
     </div>
   `;

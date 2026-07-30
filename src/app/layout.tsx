@@ -19,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
-const siteUrl = "https://www.infobuginformatica.com.br";
+const siteUrl = "https://infobug.com.br";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -52,10 +52,10 @@ const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: "Infobug Informática",
-  image: `${siteUrl}/og-image.jpg`,
+  image: `${siteUrl}/opengraph-image.png`,
   "@id": siteUrl,
   url: siteUrl,
-  telephone: "+55-53-99111-1111",
+  telephone: "+55-53-99965-9818",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Av. Juscelino Kubitscheck de Oliveira, 1913",
