@@ -3,7 +3,9 @@ import { Resend } from "resend";
 
 // Endereço que recebe as notificações. Troque pelo e-mail real da infobug.
 const NOTIFICATION_EMAIL = "infobugpelotas@gmail.com";
-const CC_EMAIL = "leandromalhon@gmail.com";
+// CC removido temporariamente — o modo de teste do Resend só entrega pro
+// e-mail da própria conta; volta a ativar depois de verificar o domínio.
+// const CC_EMAIL = "leandromalhon@gmail.com";
 
 // Antes de verificar um domínio próprio no Resend, "onboarding@resend.dev"
 // funciona como remetente de teste (só entrega pro e-mail cadastrado na sua
@@ -65,7 +67,6 @@ export async function POST(request: Request) {
     const { error } = await resend.emails.send({
       from: FROM_ADDRESS,
       to: NOTIFICATION_EMAIL,
-      cc: CC_EMAIL,
       subject,
       html,
     });
