@@ -2,19 +2,15 @@
 
 import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Truck, MessageSquare } from "lucide-react";
-
-// Número de WhatsApp real da infobug
-const WHATSAPP_NUMBER = "5553999659818";
+import { Truck, MessageSquare, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 type Tab = "delivery" | "contato";
-
-function buildWhatsAppLink(message: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-}
+type SendStatus = "idle" | "sending" | "success" | "error";
 
 export default function ContactSection() {
   const [tab, setTab] = useState<Tab>("delivery");
+  const [deliveryStatus, setDeliveryStatus] = useState<SendStatus>("idle");
+  const [contactStatus, setContactStatus] = useState<SendStatus>("idle");
 
   const [deliveryForm, setDeliveryForm] = useState({
     nome: "",
@@ -32,59 +28,93 @@ export default function ContactSection() {
     mensagem: "",
   });
 
-  // Envia o e-mail em segundo plano; nunca bloqueia ou falha o fluxo do
-  // WhatsApp caso o Resend não esteja configurado ou dê erro.
-  const notifyByEmail = (type: "delivery" | "contato", fields: Record<string, string>) => {
-    fetch("/api/contact", {
+  const sendEmail = async (type: "delivery" | "contato", fields: Record<string, string>) => {
+    const response = await fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type, fields }),
-    }).catch((err) => console.error("Falha ao notificar por e-mail:", err));
+    });
+    if (!response.ok) {
+      throw new Error("Falha ao enviar");
+    }
   };
 
-  const handleDeliverySubmit = (e: FormEvent) => {
+  const handleDeliverySubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const message = [
-      "Olá! Gostaria de solicitar um delivery de equipamento.",
-      `Nome: ${deliveryForm.nome}`,
-      `Telefone: ${deliveryForm.telefone}`,
-      `Endereço: ${deliveryForm.endereco}${deliveryForm.complemento ? ", " + deliveryForm.complemento : ""}`,
-      `Deseja backup dos dados: ${deliveryForm.backup || "não informado"}`,
-      deliveryForm.observacoes ? `Observações: ${deliveryForm.observacoes}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-    window.open(buildWhatsAppLink(message), "_blank", "noopener,noreferrer");
-    notifyByEmail("delivery", {
-      nome: deliveryForm.nome,
-      telefone: deliveryForm.telefone,
-      endereço: `${deliveryForm.endereco}${deliveryForm.complemento ? ", " + deliveryForm.complemento : ""}`,
-      backup: deliveryForm.backup || "não informado",
-      observações: deliveryForm.observacoes,
-    });
+    setDeliveryStatus("sending");
+    try {
+      await sendEmail("delivery", {
+        nome: deliveryForm.nome,
+        telefone: deliveryForm.telefone,
+        endereço: `${deliveryForm.endereco}${deliveryForm.complemento ? ", " + deliveryForm.complemento : ""}`,
+        backup: deliveryForm.backup || "não informado",
+        observações: deliveryForm.observacoes,
+      });
+      setDeliveryStatus("success");
+      setDeliveryForm({
+        nome: "",
+        telefone: "",
+        endereco: "",
+        complemento: "",
+        backup: "",
+        observacoes: "",
+      });
+    } catch (err) {
+      console.error("Falha ao enviar formulário de delivery:", err);
+      setDeliveryStatus("error");
+    }
   };
 
-  const handleContactSubmit = (e: FormEvent) => {
+  const handleContactSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const message = [
-      "Olá! Gostaria de falar com a infobug.",
-      `Nome: ${contactForm.nome}`,
-      `E-mail: ${contactForm.email}`,
-      `Telefone: ${contactForm.telefone}`,
-      `Mensagem: ${contactForm.mensagem}`,
-    ].join("\n");
-    window.open(buildWhatsAppLink(message), "_blank", "noopener,noreferrer");
-    notifyByEmail("contato", {
-      nome: contactForm.nome,
-      "e-mail": contactForm.email,
-      telefone: contactForm.telefone,
-      mensagem: contactForm.mensagem,
-    });
+    setContactStatus("sending");
+    try {
+      await sendEmail("contato", {
+        nome: contactForm.nome,
+        "e-mail": contactForm.email,
+        telefone: contactForm.telefone,
+        mensagem: contactForm.mensagem,
+      });
+      setContactStatus("success");
+      setContactForm({ nome: "", email: "", telefone: "", mensagem: "" });
+    } catch (err) {
+      console.error("Falha ao enviar formulário de contato:", err);
+      setContactStatus("error");
+    }
   };
 
   const inputClass =
     "w-full rounded-md border border-border bg-bg-raised px-4 py-3 text-sm text-text placeholder:text-text-dim/70 focus:border-orange outline-none transition-colors";
   const labelClass = "block text-sm font-medium mb-2";
+
+  const renderSubmitButton = (status: SendStatus) => {
+    if (status === "success") {
+      return (
+        <div className="sm:col-span-2 flex items-center justify-center gap-2 rounded-md bg-green/15 border border-green/40 px-6 py-3.5 font-semibold text-green">
+          <CheckCircle2 size={18} />
+          Mensagem enviada! Vamos te responder em breve.
+        </div>
+      );
+    }
+    return (
+      <div className="sm:col-span-2 flex flex-col gap-3">
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {status === "sending" && <Loader2 size={18} className="animate-spin" />}
+          {status === "sending" ? "Enviando..." : "Enviar mensagem"}
+        </button>
+        {status === "error" && (
+          <p className="flex items-center gap-2 text-sm text-orange">
+            <AlertCircle size={16} />
+            Não foi possível enviar. Tente novamente ou nos chame no WhatsApp.
+          </p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <section id="contato" className="relative py-24 sm:py-32 border-b border-border">
@@ -102,7 +132,7 @@ export default function ContactSection() {
           </h2>
           <p className="mt-4 text-text-dim">
             Solicite a coleta do seu equipamento ou tire uma dúvida — respondemos
-            direto pelo WhatsApp.
+            o mais rápido possível.
           </p>
         </motion.div>
 
@@ -209,12 +239,7 @@ export default function ContactSection() {
                   onChange={(e) => setDeliveryForm({ ...deliveryForm, observacoes: e.target.value })}
                 />
               </div>
-              <button
-                type="submit"
-                className="sm:col-span-2 inline-flex items-center justify-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
-              >
-                Enviar via WhatsApp
-              </button>
+              {renderSubmitButton(deliveryStatus)}
             </motion.form>
           ) : (
             <motion.form
@@ -272,12 +297,7 @@ export default function ContactSection() {
                   onChange={(e) => setContactForm({ ...contactForm, mensagem: e.target.value })}
                 />
               </div>
-              <button
-                type="submit"
-                className="sm:col-span-2 inline-flex items-center justify-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
-              >
-                Enviar via WhatsApp
-              </button>
+              {renderSubmitButton(contactStatus)}
             </motion.form>
           )}
         </AnimatePresence>
