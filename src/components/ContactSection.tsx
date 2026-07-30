@@ -32,6 +32,16 @@ export default function ContactSection() {
     mensagem: "",
   });
 
+  // Envia o e-mail em segundo plano; nunca bloqueia ou falha o fluxo do
+  // WhatsApp caso o Resend não esteja configurado ou dê erro.
+  const notifyByEmail = (type: "delivery" | "contato", fields: Record<string, string>) => {
+    fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, fields }),
+    }).catch((err) => console.error("Falha ao notificar por e-mail:", err));
+  };
+
   const handleDeliverySubmit = (e: FormEvent) => {
     e.preventDefault();
     const message = [
@@ -40,13 +50,18 @@ export default function ContactSection() {
       `Telefone: ${deliveryForm.telefone}`,
       `Endereço: ${deliveryForm.endereco}${deliveryForm.complemento ? ", " + deliveryForm.complemento : ""}`,
       `Deseja backup dos dados: ${deliveryForm.backup || "não informado"}`,
-      deliveryForm.observacoes
-        ? `Observações: ${deliveryForm.observacoes}`
-        : "",
+      deliveryForm.observacoes ? `Observações: ${deliveryForm.observacoes}` : "",
     ]
       .filter(Boolean)
       .join("\n");
     window.open(buildWhatsAppLink(message), "_blank", "noopener,noreferrer");
+    notifyByEmail("delivery", {
+      nome: deliveryForm.nome,
+      telefone: deliveryForm.telefone,
+      endereço: `${deliveryForm.endereco}${deliveryForm.complemento ? ", " + deliveryForm.complemento : ""}`,
+      backup: deliveryForm.backup || "não informado",
+      observações: deliveryForm.observacoes,
+    });
   };
 
   const handleContactSubmit = (e: FormEvent) => {
@@ -59,6 +74,12 @@ export default function ContactSection() {
       `Mensagem: ${contactForm.mensagem}`,
     ].join("\n");
     window.open(buildWhatsAppLink(message), "_blank", "noopener,noreferrer");
+    notifyByEmail("contato", {
+      nome: contactForm.nome,
+      "e-mail": contactForm.email,
+      telefone: contactForm.telefone,
+      mensagem: contactForm.mensagem,
+    });
   };
 
   const inputClass =
@@ -66,10 +87,7 @@ export default function ContactSection() {
   const labelClass = "block text-sm font-medium mb-2";
 
   return (
-    <section
-      id="contato"
-      className="relative py-24 sm:py-32 border-b border-border"
-    >
+    <section id="contato" className="relative py-24 sm:py-32 border-b border-border">
       <div className="mx-auto max-w-3xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -83,8 +101,8 @@ export default function ContactSection() {
             Vamos resolver o seu problema
           </h2>
           <p className="mt-4 text-text-dim">
-            Solicite a coleta do seu equipamento ou tire uma dúvida —
-            respondemos direto pelo WhatsApp.
+            Solicite a coleta do seu equipamento ou tire uma dúvida — respondemos
+            direto pelo WhatsApp.
           </p>
         </motion.div>
 
@@ -125,49 +143,34 @@ export default function ContactSection() {
               className="grid grid-cols-1 sm:grid-cols-2 gap-5 rounded-xl border border-border bg-bg-card p-6 sm:p-8"
             >
               <div className="sm:col-span-2">
-                <label className={labelClass} htmlFor="d-nome">
-                  Nome
-                </label>
+                <label className={labelClass} htmlFor="d-nome">Nome</label>
                 <input
                   id="d-nome"
                   required
                   className={inputClass}
                   placeholder="Coloque seu nome"
                   value={deliveryForm.nome}
-                  onChange={(e) =>
-                    setDeliveryForm({ ...deliveryForm, nome: e.target.value })
-                  }
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, nome: e.target.value })}
                 />
               </div>
               <div>
-                <label className={labelClass} htmlFor="d-telefone">
-                  Telefone/WhatsApp
-                </label>
+                <label className={labelClass} htmlFor="d-telefone">Telefone/WhatsApp</label>
                 <input
                   id="d-telefone"
                   required
                   className={inputClass}
                   placeholder="Ex: 53 99111-1111"
                   value={deliveryForm.telefone}
-                  onChange={(e) =>
-                    setDeliveryForm({
-                      ...deliveryForm,
-                      telefone: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, telefone: e.target.value })}
                 />
               </div>
               <div>
-                <label className={labelClass} htmlFor="d-backup">
-                  Realizar backup?
-                </label>
+                <label className={labelClass} htmlFor="d-backup">Realizar backup?</label>
                 <select
                   id="d-backup"
                   className={inputClass}
                   value={deliveryForm.backup}
-                  onChange={(e) =>
-                    setDeliveryForm({ ...deliveryForm, backup: e.target.value })
-                  }
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, backup: e.target.value })}
                 >
                   <option value="">Gostaria de salvar seus dados?</option>
                   <option value="Sim">Sim</option>
@@ -175,63 +178,42 @@ export default function ContactSection() {
                 </select>
               </div>
               <div>
-                <label className={labelClass} htmlFor="d-endereco">
-                  Endereço
-                </label>
+                <label className={labelClass} htmlFor="d-endereco">Endereço</label>
                 <input
                   id="d-endereco"
                   required
                   className={inputClass}
                   placeholder="Insira seu endereço"
                   value={deliveryForm.endereco}
-                  onChange={(e) =>
-                    setDeliveryForm({
-                      ...deliveryForm,
-                      endereco: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, endereco: e.target.value })}
                 />
               </div>
               <div>
-                <label className={labelClass} htmlFor="d-complemento">
-                  Complemento (Nº / Apto / Cond.)
-                </label>
+                <label className={labelClass} htmlFor="d-complemento">Complemento (Nº / Apto / Cond.)</label>
                 <input
                   id="d-complemento"
                   className={inputClass}
                   placeholder="Complemento"
                   value={deliveryForm.complemento}
-                  onChange={(e) =>
-                    setDeliveryForm({
-                      ...deliveryForm,
-                      complemento: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, complemento: e.target.value })}
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className={labelClass} htmlFor="d-obs">
-                  Observações
-                </label>
+                <label className={labelClass} htmlFor="d-obs">Observações</label>
                 <textarea
                   id="d-obs"
                   rows={3}
                   className={inputClass}
                   placeholder="Descreva o problema do equipamento"
                   value={deliveryForm.observacoes}
-                  onChange={(e) =>
-                    setDeliveryForm({
-                      ...deliveryForm,
-                      observacoes: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, observacoes: e.target.value })}
                 />
               </div>
               <button
                 type="submit"
                 className="sm:col-span-2 inline-flex items-center justify-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
               >
-                Enviar mensagem
+                Enviar via WhatsApp
               </button>
             </motion.form>
           ) : (
@@ -245,39 +227,29 @@ export default function ContactSection() {
               className="grid grid-cols-1 sm:grid-cols-2 gap-5 rounded-xl border border-border bg-bg-card p-6 sm:p-8"
             >
               <div>
-                <label className={labelClass} htmlFor="c-nome">
-                  Nome
-                </label>
+                <label className={labelClass} htmlFor="c-nome">Nome</label>
                 <input
                   id="c-nome"
                   required
                   className={inputClass}
                   placeholder="Coloque seu nome"
                   value={contactForm.nome}
-                  onChange={(e) =>
-                    setContactForm({ ...contactForm, nome: e.target.value })
-                  }
+                  onChange={(e) => setContactForm({ ...contactForm, nome: e.target.value })}
                 />
               </div>
               <div>
-                <label className={labelClass} htmlFor="c-telefone">
-                  Telefone/WhatsApp
-                </label>
+                <label className={labelClass} htmlFor="c-telefone">Telefone/WhatsApp</label>
                 <input
                   id="c-telefone"
                   required
                   className={inputClass}
                   placeholder="Ex: 53 99111-1111"
                   value={contactForm.telefone}
-                  onChange={(e) =>
-                    setContactForm({ ...contactForm, telefone: e.target.value })
-                  }
+                  onChange={(e) => setContactForm({ ...contactForm, telefone: e.target.value })}
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className={labelClass} htmlFor="c-email">
-                  E-mail
-                </label>
+                <label className={labelClass} htmlFor="c-email">E-mail</label>
                 <input
                   id="c-email"
                   type="email"
@@ -285,15 +257,11 @@ export default function ContactSection() {
                   className={inputClass}
                   placeholder="E-mail válido"
                   value={contactForm.email}
-                  onChange={(e) =>
-                    setContactForm({ ...contactForm, email: e.target.value })
-                  }
+                  onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className={labelClass} htmlFor="c-mensagem">
-                  Mensagem
-                </label>
+                <label className={labelClass} htmlFor="c-mensagem">Mensagem</label>
                 <textarea
                   id="c-mensagem"
                   required
@@ -301,16 +269,14 @@ export default function ContactSection() {
                   className={inputClass}
                   placeholder="Deixe sua mensagem"
                   value={contactForm.mensagem}
-                  onChange={(e) =>
-                    setContactForm({ ...contactForm, mensagem: e.target.value })
-                  }
+                  onChange={(e) => setContactForm({ ...contactForm, mensagem: e.target.value })}
                 />
               </div>
               <button
                 type="submit"
                 className="sm:col-span-2 inline-flex items-center justify-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
               >
-                Enviar mensagem
+                Enviar via WhatsApp
               </button>
             </motion.form>
           )}
