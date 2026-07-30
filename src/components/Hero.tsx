@@ -8,6 +8,11 @@ import { heroSlides } from "@/lib/data";
 import CircuitBackground from "./CircuitBackground";
 
 const AUTO_ADVANCE_MS = 6500;
+const WHATSAPP_NUMBER = "5553999659818";
+
+function buildWhatsAppLink(message: string) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
 
 export default function Hero() {
   const [index, setIndex] = useState(0);
@@ -93,7 +98,9 @@ export default function Hero() {
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-6">
                 <a
-                  href="#contato"
+                  href={buildWhatsAppLink(`Olá! Vim pelo site e tenho interesse em: ${slide.cta}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
                 >
                   {slide.cta}

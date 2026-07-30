@@ -5,6 +5,10 @@ import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { navLinks } from "@/lib/data";
 
+const WHATSAPP_LINK =
+  "https://wa.me/5553999659818?text=" +
+  encodeURIComponent("Olá! Vim pelo site e gostaria de solicitar um orçamento.");
+
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -51,7 +55,9 @@ export default function Header() {
             </a>
           ))}
           <a
-            href="#contato"
+            href={WHATSAPP_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center rounded-md bg-orange px-4 py-2 text-sm font-semibold text-bg hover:bg-orange-dim transition-colors"
           >
             Solicitar orçamento
@@ -88,7 +94,9 @@ export default function Header() {
               </a>
             ))}
             <a
-              href="#contato"
+              href={WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setOpen(false)}
               className="inline-flex items-center justify-center rounded-md bg-orange px-4 py-2 text-sm font-semibold text-bg"
             >
