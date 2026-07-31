@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { navLinks } from "@/lib/data";
+import { trackEvent } from "@/lib/analytics";
 
 const WHATSAPP_LINK =
   "https://wa.me/5553999659818?text=" +
@@ -58,6 +59,7 @@ export default function Header() {
             href={WHATSAPP_LINK}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackEvent("whatsapp_click", { location: "header_desktop" })}
             className="inline-flex items-center rounded-md bg-orange px-4 py-2 text-sm font-semibold text-bg hover:bg-orange-dim transition-colors"
           >
             Solicitar orçamento
@@ -97,7 +99,10 @@ export default function Header() {
               href={WHATSAPP_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                trackEvent("whatsapp_click", { location: "header_mobile" });
+                setOpen(false);
+              }}
               className="inline-flex items-center justify-center rounded-md bg-orange px-4 py-2 text-sm font-semibold text-bg"
             >
               Solicitar orçamento

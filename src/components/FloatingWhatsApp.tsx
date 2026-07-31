@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa6";
+import { trackEvent } from "@/lib/analytics";
 
 // Same number used in ContactSection's WhatsApp deep links — keep both in sync.
 const WHATSAPP_NUMBER = "5553999659818";
@@ -62,6 +63,7 @@ export default function FloatingWhatsApp() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Falar no WhatsApp"
+            onClick={() => trackEvent("whatsapp_click", { location: "floating_button" })}
             className="relative flex items-center justify-center w-14 h-14 rounded-full bg-green text-bg shadow-lg shadow-black/40 hover:scale-105 active:scale-95 transition-transform"
           >
             <span className="absolute inset-0 rounded-full bg-green animate-ping-slow opacity-40 motion-reduce:hidden" />

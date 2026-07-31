@@ -1,5 +1,8 @@
+"use client";
+
 import { navLinks } from "@/lib/data";
 import { FaInstagram, FaFacebookF, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Footer() {
   return (
@@ -37,6 +40,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="WhatsApp"
+              onClick={() => trackEvent("whatsapp_click", { location: "footer" })}
               className="flex items-center justify-center w-9 h-9 rounded-full border border-border text-text-dim hover:text-orange hover:border-orange/50 transition-colors"
             >
               <FaWhatsapp size={16} />

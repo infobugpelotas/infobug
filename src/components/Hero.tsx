@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { heroSlides } from "@/lib/data";
 import CircuitBackground from "./CircuitBackground";
+import { trackEvent } from "@/lib/analytics";
 
 const AUTO_ADVANCE_MS = 6500;
 const WHATSAPP_NUMBER = "5553999659818";
@@ -101,6 +102,7 @@ export default function Hero() {
                   href={buildWhatsAppLink(`Olá! Vim pelo site e tenho interesse em: ${slide.cta}`)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackEvent("whatsapp_click", { location: `hero_${slide.slug}` })}
                   className="inline-flex items-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
                 >
                   {slide.cta}

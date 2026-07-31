@@ -1,14 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
-const LINES = [
-  "iniciando sistema...",
-  "detectando hardware...",
-  "carregando infobug_informatica.sys",
-  "pronto.",
-];
+const RING_DURATION = 1.1; // seconds
+const HOLD_AFTER = 250; // ms pause after the ring completes, before fading out
 
 function prefersReducedMotion() {
   if (typeof window === "undefined") return false;
@@ -16,22 +12,19 @@ function prefersReducedMotion() {
 }
 
 export default function BootSequence({ onDone }: { onDone: () => void }) {
-  const [lineIndex, setLineIndex] = useState(0);
   const [skip] = useState(prefersReducedMotion);
+  const [ringDone, setRingDone] = useState(false);
 
   useEffect(() => {
     if (skip) {
       onDone();
       return;
     }
-    if (lineIndex >= LINES.length) {
-      const t = setTimeout(onDone, 350);
+    if (ringDone) {
+      const t = setTimeout(onDone, HOLD_AFTER);
       return () => clearTimeout(t);
     }
-    const t = setTimeout(() => setLineIndex((i) => i + 1), 320);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lineIndex, skip]);
+  }, [skip, ringDone, onDone]);
 
   if (skip) return null;
 
@@ -40,10 +33,10 @@ export default function BootSequence({ onDone }: { onDone: () => void }) {
       <motion.div
         key="boot"
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.35 }}
+        transition={{ duration: 0.4, ease: "easeInOut" }}
         className="fixed inset-0 z-[100] bg-bg flex items-center justify-center"
         role="status"
-        aria-live="polite"
+        aria-label="Carregando"
       >
         <button
           type="button"
@@ -52,12 +45,42 @@ export default function BootSequence({ onDone }: { onDone: () => void }) {
         >
           pular
         </button>
-        <div className="font-mono text-sm sm:text-base text-green space-y-2 px-6">
-          {LINES.slice(0, lineIndex).map((line, i) => (
-            <p key={i}>
-              <span className="text-orange">$</span> {line}
-            </p>
-          ))}
+
+        <div className="relative w-40 h-40 flex items-center justify-center">
+          <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full -rotate-90">
+            <circle
+              cx="50"
+              cy="50"
+              r="44"
+              fill="none"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
+            <motion.circle
+              cx="50"
+              cy="50"
+              r="44"
+              fill="none"
+              stroke="var(--color-orange)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              pathLength={1}
+              strokeDasharray="1 1"
+              initial={{ strokeDashoffset: 1 }}
+              animate={{ strokeDashoffset: 0 }}
+              transition={{ duration: RING_DURATION, ease: "easeInOut" }}
+              onAnimationComplete={() => setRingDone(true)}
+            />
+          </svg>
+
+          <motion.img
+            src="/logo/logo-compact.svg"
+            alt="Infobug Informática"
+            className="h-8 w-auto relative"
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          />
         </div>
       </motion.div>
     </AnimatePresence>

@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Truck, MessageSquare, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 type Tab = "delivery" | "contato";
 type SendStatus = "idle" | "sending" | "success" | "error";
@@ -51,6 +52,7 @@ export default function ContactSection() {
         observações: deliveryForm.observacoes,
       });
       setDeliveryStatus("success");
+      trackEvent("form_submit", { form_type: "delivery" });
       setDeliveryForm({
         nome: "",
         telefone: "",
@@ -76,6 +78,7 @@ export default function ContactSection() {
         mensagem: contactForm.mensagem,
       });
       setContactStatus("success");
+      trackEvent("form_submit", { form_type: "contato" });
       setContactForm({ nome: "", email: "", telefone: "", mensagem: "" });
     } catch (err) {
       console.error("Falha ao enviar formulário de contato:", err);
