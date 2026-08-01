@@ -21,6 +21,9 @@ export default function Hero() {
   const [pageLoaded, setPageLoaded] = useState(
     () => typeof document !== "undefined" && document.readyState === "complete"
   );
+  const [reducedMotion] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const goTo = useCallback((i: number) => {
@@ -39,14 +42,12 @@ export default function Hero() {
   }, [pageLoaded]);
 
   useEffect(() => {
-    if (paused || !pageLoaded) return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
+    if (paused || !pageLoaded || reducedMotion) return;
     timerRef.current = setTimeout(() => goTo(index + 1), AUTO_ADVANCE_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [index, paused, pageLoaded, goTo]);
+  }, [index, paused, pageLoaded, reducedMotion, goTo]);
 
   const slide = heroSlides[index];
 
@@ -57,8 +58,11 @@ export default function Hero() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Background photo per slide, art-directed for desktop vs mobile crops */}
-      <div className="absolute inset-0">
+      {/* Background photo per slide, art-directed for desktop vs mobile crops.
+          Pure crossfade between slides + a slow continuous zoom while each
+          slide is visible (Ken Burns) — deliberately not a horizontal slide,
+          which reads as generic e-commerce carousel. */}
+      <div className="absolute inset-0 overflow-hidden">
         <AnimatePresence mode="sync">
           <motion.div
             key={slide.slug}
@@ -68,22 +72,29 @@ export default function Hero() {
             transition={{ duration: 0.8, ease: "easeInOut" }}
             className="absolute inset-0"
           >
-            <Image
-              src={slide.imageDesktop}
-              alt=""
-              fill
-              priority={index === 0}
-              sizes="(max-width: 639px) 0px, 100vw"
-              className="hidden sm:block object-cover"
-            />
-            <Image
-              src={slide.imageMobile}
-              alt=""
-              fill
-              priority={index === 0}
-              sizes="(min-width: 640px) 0px, 100vw"
-              className="sm:hidden object-cover"
-            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ scale: 1 }}
+              animate={{ scale: reducedMotion ? 1 : 1.08 }}
+              transition={{ duration: (AUTO_ADVANCE_MS + 800) / 1000, ease: "linear" }}
+            >
+              <Image
+                src={slide.imageDesktop}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="(max-width: 639px) 0px, 100vw"
+                className="hidden sm:block object-cover"
+              />
+              <Image
+                src={slide.imageMobile}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="(min-width: 640px) 0px, 100vw"
+                className="sm:hidden object-cover"
+              />
+            </motion.div>
           </motion.div>
         </AnimatePresence>
         {/* Gradient overlay: guarantees legible contrast for the text over any photo */}
@@ -93,47 +104,70 @@ export default function Hero() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-6 pt-40 pb-28 sm:pt-48 sm:pb-36 min-h-[560px] flex flex-col justify-center">
-        <div className="max-w-2xl">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={slide.slug}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            >
-              <p className="font-mono text-sm text-orange tracking-wide mb-4">
-                {slide.eyebrow}
-              </p>
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[0.98] tracking-tight">
-                {slide.title}
-              </h1>
-              <p className="mt-6 text-lg text-text-dim max-w-xl">
-                {slide.description}
-              </p>
-              <div className="mt-10 flex flex-wrap items-center gap-6">
-                <a
-                  href={buildWhatsAppLink(`Olá! Vim pelo site e tenho interesse em: ${slide.cta}`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackEvent("whatsapp_click", { location: `hero_${slide.slug}` })}
-                  className="inline-flex items-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
-                >
-                  {slide.cta}
-                </a>
-                <a
-                  href="#servicos"
-                  className="text-sm text-text-dim hover:text-text transition-colors underline underline-offset-4 decoration-border"
-                >
-                  Conheça nossos serviços →
-                </a>
+        <div className="relative max-w-2xl">
+          {/* Invisible sizer: stacks every slide's text so the block always
+              reserves the height of the tallest one — pure CSS, no JS
+              measuring, so the real content below never shifts size on swap. */}
+          <div aria-hidden="true" className="invisible grid">
+            {heroSlides.map((s) => (
+              <div key={s.slug} className="col-start-1 row-start-1">
+                <p className="font-mono text-sm mb-4">{s.eyebrow}</p>
+                <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[0.98] tracking-tight">
+                  {s.title}
+                </h2>
+                <p className="mt-6 text-lg max-w-xl">{s.description}</p>
+                <div className="mt-10 flex flex-wrap items-center gap-6">
+                  <span className="inline-flex items-center rounded-md px-6 py-3.5 font-semibold">
+                    {s.cta}
+                  </span>
+                  <span className="text-sm">Conheça nossos serviços →</span>
+                </div>
               </div>
-            </motion.div>
-          </AnimatePresence>
+            ))}
+          </div>
+
+          <div className="absolute inset-0">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={slide.slug}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              >
+                <p className="font-mono text-sm text-orange tracking-wide mb-4">
+                  {slide.eyebrow}
+                </p>
+                <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[0.98] tracking-tight">
+                  {slide.title}
+                </h1>
+                <p className="mt-6 text-lg text-text-dim max-w-xl">
+                  {slide.description}
+                </p>
+                <div className="mt-10 flex flex-wrap items-center gap-6">
+                  <a
+                    href={buildWhatsAppLink(`Olá! Vim pelo site e tenho interesse em: ${slide.cta}`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent("whatsapp_click", { location: `hero_${slide.slug}` })}
+                    className="inline-flex items-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
+                  >
+                    {slide.cta}
+                  </a>
+                  <a
+                    href="#servicos"
+                    className="text-sm text-text-dim hover:text-text transition-colors underline underline-offset-4 decoration-border"
+                  >
+                    Conheça nossos serviços →
+                  </a>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Controls */}
-        <div className="mt-14 flex items-center gap-6">
+        <div className="mt-14 flex items-center gap-6 relative">
           <div className="flex gap-2">
             {heroSlides.map((s, i) => (
               <button
