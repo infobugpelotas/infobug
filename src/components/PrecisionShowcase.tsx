@@ -3,6 +3,11 @@
 import { useRef } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { trackEvent } from "@/lib/analytics";
+
+const WHATSAPP_LINK =
+  "https://wa.me/5553999659818?text=" +
+  encodeURIComponent("Olá! Vi o site e gostaria de agendar um diagnóstico.");
 
 export default function PrecisionShowcase() {
   const ref = useRef<HTMLElement>(null);
@@ -17,7 +22,7 @@ export default function PrecisionShowcase() {
   return (
     <section
       ref={ref}
-      className="relative h-[70vh] min-h-[420px] max-h-[720px] overflow-hidden border-b border-border"
+      className="relative h-[70vh] min-h-[460px] max-h-[720px] overflow-hidden border-b border-border"
     >
       <motion.div style={{ y: imageY }} className="absolute inset-0 scale-110">
         <Image
@@ -51,6 +56,19 @@ export default function PrecisionShowcase() {
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.02] tracking-tight">
             Cada reparo é uma cirurgia de precisão.
           </h2>
+          <p className="mt-4 text-text-dim max-w-md">
+            Diagnóstico detalhado antes de qualquer intervenção — sem achismo,
+            sem gambiarra.
+          </p>
+          <a
+            href={WHATSAPP_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent("whatsapp_click", { location: "precision_showcase" })}
+            className="mt-8 inline-flex items-center rounded-md bg-orange px-6 py-3.5 font-semibold text-bg hover:bg-orange-dim transition-colors"
+          >
+            Agendar diagnóstico
+          </a>
         </motion.div>
       </div>
     </section>
