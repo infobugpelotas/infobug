@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { brands } from "@/lib/data";
 
 export default function Brands() {
@@ -22,15 +23,20 @@ export default function Brands() {
       <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
         <div className="flex w-max items-center gap-16 sm:gap-24 animate-marquee hover:[animation-play-state:paused] motion-reduce:animate-none">
           {[...brands, ...brands, ...brands].map((brand, i) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <div
               key={`${brand.name}-${i}`}
-              src={brand.logo}
-              alt={brand.name}
-              className={`w-auto shrink-0 object-contain brightness-0 invert opacity-50 hover:opacity-100 hover:brightness-100 hover:invert-0 transition-all duration-300 ${
-                brand.size === "sm" ? "h-8 sm:h-10" : "h-24 sm:h-32"
+              className={`relative shrink-0 ${
+                brand.size === "sm" ? "w-20 h-8 sm:w-24 sm:h-10" : "w-40 h-24 sm:w-52 sm:h-32"
               }`}
-            />
+            >
+              <Image
+                src={brand.logo}
+                alt={brand.name}
+                fill
+                sizes="200px"
+                className="object-contain brightness-0 invert opacity-50 hover:opacity-100 hover:brightness-100 hover:invert-0 transition-all duration-300"
+              />
+            </div>
           ))}
         </div>
       </div>

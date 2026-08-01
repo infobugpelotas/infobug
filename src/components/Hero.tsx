@@ -18,21 +18,35 @@ function buildWhatsAppLink(message: string) {
 export default function Hero() {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(
+    () => typeof document !== "undefined" && document.readyState === "complete"
+  );
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const goTo = useCallback((i: number) => {
     setIndex((i + heroSlides.length) % heroSlides.length);
   }, []);
 
+  // Only start swapping the background image after the page has fully
+  // loaded — swapping earlier makes Chrome treat each new slide image as a
+  // fresh LCP candidate, which can massively inflate LCP on slow mobile
+  // connections (each swap "resets" the largest-paint measurement).
   useEffect(() => {
-    if (paused) return;
+    if (pageLoaded) return;
+    const onLoad = () => setPageLoaded(true);
+    window.addEventListener("load", onLoad);
+    return () => window.removeEventListener("load", onLoad);
+  }, [pageLoaded]);
+
+  useEffect(() => {
+    if (paused || !pageLoaded) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion) return;
     timerRef.current = setTimeout(() => goTo(index + 1), AUTO_ADVANCE_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [index, paused, goTo]);
+  }, [index, paused, pageLoaded, goTo]);
 
   const slide = heroSlides[index];
 
@@ -80,7 +94,7 @@ export default function Hero() {
 
       <div className="relative mx-auto max-w-6xl px-6 pt-40 pb-28 sm:pt-48 sm:pb-36 min-h-[560px] flex flex-col justify-center">
         <div className="max-w-2xl">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={slide.slug}
               initial={{ opacity: 0, y: 16 }}

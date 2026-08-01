@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import BootSequence from "@/components/BootSequence";
+import dynamic from "next/dynamic";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
@@ -9,9 +9,13 @@ import Differentiators from "@/components/Differentiators";
 import Brands from "@/components/Brands";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
-import SolderCursor from "@/components/SolderCursor";
 import PrecisionShowcase from "@/components/PrecisionShowcase";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+
+// Puramente decorativos e client-only — tirados do bundle inicial de
+// hidratação para reduzir o Total Blocking Time no carregamento.
+const BootSequence = dynamic(() => import("@/components/BootSequence"), { ssr: false });
+const SolderCursor = dynamic(() => import("@/components/SolderCursor"), { ssr: false });
 
 export default function Home() {
   const [booted, setBooted] = useState(false);

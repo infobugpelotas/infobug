@@ -1,7 +1,7 @@
 "use client";
 
 import { navLinks } from "@/lib/data";
-import { FaInstagram, FaFacebookF, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import { trackEvent } from "@/lib/analytics";
 
 export default function Footer() {
@@ -44,20 +44,6 @@ export default function Footer() {
               className="flex items-center justify-center w-9 h-9 rounded-full border border-border text-text-dim hover:text-orange hover:border-orange/50 transition-colors"
             >
               <FaWhatsapp size={16} />
-            </a>
-            <a
-              href="#"
-              aria-label="Facebook"
-              className="flex items-center justify-center w-9 h-9 rounded-full border border-border text-text-dim hover:text-orange hover:border-orange/50 transition-colors"
-            >
-              <FaFacebookF size={14} />
-            </a>
-            <a
-              href="#"
-              aria-label="LinkedIn"
-              className="flex items-center justify-center w-9 h-9 rounded-full border border-border text-text-dim hover:text-orange hover:border-orange/50 transition-colors"
-            >
-              <FaLinkedinIn size={16} />
             </a>
           </div>
         </div>

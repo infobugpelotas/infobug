@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
-const siteUrl = "https://infobug.com.br";
+const siteUrl = "https://www.infobug.com.br";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -35,6 +35,9 @@ export const metadata: Metadata = {
     "manutenção de PC Pelotas RS",
     "troca de tela notebook Pelotas",
   ],
+  alternates: {
+    canonical: siteUrl,
+  },
   openGraph: {
     title: "Infobug Informática | Assistência Técnica em Pelotas/RS",
     description:
@@ -55,6 +58,7 @@ const localBusinessSchema = {
   "@type": "LocalBusiness",
   name: "Infobug Informática",
   image: `${siteUrl}/opengraph-image.png`,
+  logo: `${siteUrl}/logo/logo-full.svg`,
   "@id": siteUrl,
   url: siteUrl,
   telephone: "+55-53-99965-9818",
@@ -63,7 +67,13 @@ const localBusinessSchema = {
     streetAddress: "Av. Juscelino Kubitscheck de Oliveira, 1913",
     addressLocality: "Pelotas",
     addressRegion: "RS",
+    postalCode: "96075-810",
     addressCountry: "BR",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: -31.7666313,
+    longitude: -52.3313333,
   },
   areaServed: "Pelotas e Região",
   openingHoursSpecification: {
