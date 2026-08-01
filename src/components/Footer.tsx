@@ -3,6 +3,7 @@
 import { navLinks } from "@/lib/data";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import { trackEvent } from "@/lib/analytics";
+import { openCookieSettings } from "@/lib/cookieConsent";
 
 export default function Footer() {
   return (
@@ -51,6 +52,25 @@ export default function Footer() {
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between gap-2 text-xs text-text-dim">
           <p>Av. Juscelino Kubitscheck de Oliveira, 1913 — Pelotas/RS</p>
           <p>© {new Date().getFullYear()} Infobug Informática. Todos os direitos reservados.</p>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-text-dim">
+          <a href="/privacidade" className="hover:text-text transition-colors">
+            Política de Privacidade
+          </a>
+          <a href="/termos" className="hover:text-text transition-colors">
+            Termos de Serviço
+          </a>
+          <a href="/remocao-de-dados" className="hover:text-text transition-colors">
+            Remoção de dados
+          </a>
+          <button
+            type="button"
+            onClick={openCookieSettings}
+            className="hover:text-text underline-offset-4 hover:underline transition-colors"
+          >
+            Gerenciar cookies
+          </button>
         </div>
       </div>
     </footer>

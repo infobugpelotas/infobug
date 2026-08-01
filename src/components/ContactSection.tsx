@@ -21,6 +21,7 @@ export default function ContactSection() {
     backup: "",
     observacoes: "",
   });
+  const [deliveryConsent, setDeliveryConsent] = useState(false);
 
   const [contactForm, setContactForm] = useState({
     nome: "",
@@ -28,6 +29,7 @@ export default function ContactSection() {
     telefone: "",
     mensagem: "",
   });
+  const [contactConsent, setContactConsent] = useState(false);
 
   const sendEmail = async (type: "delivery" | "contato", fields: Record<string, string>) => {
     const response = await fetch("/api/contact", {
@@ -61,6 +63,7 @@ export default function ContactSection() {
         backup: "",
         observacoes: "",
       });
+      setDeliveryConsent(false);
     } catch (err) {
       console.error("Falha ao enviar formulário de delivery:", err);
       setDeliveryStatus("error");
@@ -80,6 +83,7 @@ export default function ContactSection() {
       setContactStatus("success");
       trackEvent("form_submit", { form_type: "contato" });
       setContactForm({ nome: "", email: "", telefone: "", mensagem: "" });
+      setContactConsent(false);
     } catch (err) {
       console.error("Falha ao enviar formulário de contato:", err);
       setContactStatus("error");
@@ -89,6 +93,44 @@ export default function ContactSection() {
   const inputClass =
     "w-full rounded-md border border-border bg-bg-raised px-4 py-3 text-sm text-text placeholder:text-text-dim/70 focus:border-orange outline-none transition-colors";
   const labelClass = "block text-sm font-medium mb-2";
+
+  const renderConsentCheckbox = (
+    id: string,
+    checked: boolean,
+    onChange: (checked: boolean) => void
+  ) => (
+    <div className="sm:col-span-2 flex items-start gap-3">
+      <input
+        id={id}
+        type="checkbox"
+        required
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-1 h-4 w-4 shrink-0 rounded border-border bg-bg-raised accent-orange"
+      />
+      <label htmlFor={id} className="text-sm text-text-dim leading-relaxed">
+        Li e aceito os{" "}
+        <a
+          href="/termos"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-orange underline underline-offset-4 hover:text-orange-dim"
+        >
+          Termos de Serviço
+        </a>{" "}
+        e a{" "}
+        <a
+          href="/privacidade"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-orange underline underline-offset-4 hover:text-orange-dim"
+        >
+          Política de Privacidade
+        </a>
+        , e autorizo o uso dos meus dados para este atendimento.
+      </label>
+    </div>
+  );
 
   const renderSubmitButton = (status: SendStatus) => {
     if (status === "success") {
@@ -242,6 +284,7 @@ export default function ContactSection() {
                   onChange={(e) => setDeliveryForm({ ...deliveryForm, observacoes: e.target.value })}
                 />
               </div>
+              {renderConsentCheckbox("d-consent", deliveryConsent, setDeliveryConsent)}
               {renderSubmitButton(deliveryStatus)}
             </motion.form>
           ) : (
@@ -300,6 +343,7 @@ export default function ContactSection() {
                   onChange={(e) => setContactForm({ ...contactForm, mensagem: e.target.value })}
                 />
               </div>
+              {renderConsentCheckbox("c-consent", contactConsent, setContactConsent)}
               {renderSubmitButton(contactStatus)}
             </motion.form>
           )}
