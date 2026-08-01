@@ -87,7 +87,7 @@ export default function TermosPage() {
         <p>
           Garantimos exclusivamente a <strong className="text-text">mão de obra</strong>{" "}
           executada, pelo prazo de{" "}
-          <strong className="text-text">[prazo de garantia a confirmar, ex.: 90 dias]</strong>{" "}
+          <strong className="text-text">30 dias</strong>{" "}
           a contar da entrega do equipamento, cobrindo defeitos decorrentes
           diretamente do serviço realizado.
         </p>

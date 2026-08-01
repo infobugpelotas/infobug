@@ -52,12 +52,11 @@ export default function PrivacidadePage() {
     >
       <LegalSection title="1. Quem somos (controlador dos dados)">
         <p>
-          Esta Política de Privacidade se aplica ao site infobug.com.br, operado por{" "}
-          <strong className="text-text">
-            Infobug Informática [razão social / nome do MEI a confirmar]
-          </strong>
-          , inscrita sob{" "}
-          <strong className="text-text">[CNPJ ou CPF a confirmar]</strong>, com
+          Esta Política de Privacidade se aplica ao site infobug.com.br, operado
+          por <strong className="text-text">Leandro Malhon</strong>, inscrito no
+          CPF sob o nº <strong className="text-text">055.213.299-35</strong>,
+          atuando sob o nome fantasia{" "}
+          <strong className="text-text">Infobug Informática</strong>, com
           endereço na Av. Juscelino Kubitscheck de Oliveira, 1913, Pelotas/RS,
           CEP 96075-810 (&quot;Infobug&quot;, &quot;nós&quot;).
         </p>
@@ -287,8 +286,8 @@ export default function PrivacidadePage() {
 
       <LegalSection title="10. Contato / Encarregado">
         <p>
-          Como controladora de pequeno porte, a Infobug atua diretamente como
-          canal de contato para questões de privacidade. Dúvidas, solicitações ou
+          Como controlador de pequeno porte, atuo diretamente como canal de
+          contato para questões de privacidade. Dúvidas, solicitações ou
           reclamações sobre o tratamento dos seus dados podem ser enviadas para{" "}
           <a
             href={`mailto:${CONTACT_EMAIL}`}
