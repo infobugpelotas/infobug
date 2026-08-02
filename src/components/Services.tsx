@@ -1,6 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import Image from "next/image";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
   Wrench,
   Cpu,
@@ -27,9 +29,36 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 export default function Services() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  // Ties rotation directly to scroll position — scroll down turns it one way,
+  // scroll back up reverses it, rather than spinning on its own.
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 130]);
+
   return (
-    <section id="servicos" className="relative py-24 sm:py-32 border-b border-border">
-      <div className="mx-auto max-w-6xl px-6">
+    <section
+      ref={sectionRef}
+      id="servicos"
+      className="relative py-24 sm:py-32 border-b border-border overflow-hidden"
+    >
+      <motion.div
+        aria-hidden="true"
+        style={{ rotate }}
+        className="pointer-events-none absolute inset-y-0 right-0 flex items-center justify-end translate-x-1/4 sm:translate-x-1/3 opacity-[0.22] [mask-image:radial-gradient(circle,black_40%,transparent_72%)]"
+      >
+        <Image
+          src="/images/decor/services-rotator.png"
+          alt=""
+          width={1200}
+          height={1200}
+          className="w-[420px] h-[420px] sm:w-[560px] sm:h-[560px]"
+        />
+      </motion.div>
+
+      <div className="relative mx-auto max-w-6xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
