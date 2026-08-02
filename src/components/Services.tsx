@@ -35,8 +35,11 @@ export default function Services() {
     offset: ["start end", "end start"],
   });
   // Ties rotation directly to scroll position — scroll down turns it one way,
-  // scroll back up reverses it, rather than spinning on its own.
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 130]);
+  // scroll back up reverses it, rather than spinning on its own. The two
+  // coolers spin in opposite directions so they read as two independent
+  // objects, not a mirrored pair.
+  const rotateA = useTransform(scrollYProgress, [0, 1], [0, 130]);
+  const rotateB = useTransform(scrollYProgress, [0, 1], [0, -110]);
 
   return (
     <section
@@ -44,9 +47,10 @@ export default function Services() {
       id="servicos"
       className="relative py-24 sm:py-32 border-b border-border overflow-hidden"
     >
+      {/* Cooler 1 — upper right, near the heading, larger/more present */}
       <motion.div
         aria-hidden="true"
-        style={{ rotate }}
+        style={{ rotate: rotateA }}
         className="pointer-events-none absolute inset-y-0 right-0 flex items-center justify-end translate-x-1/4 sm:translate-x-1/3 opacity-[0.22] [mask-image:radial-gradient(circle,black_40%,transparent_72%)]"
       >
         <Image
@@ -55,6 +59,22 @@ export default function Services() {
           width={1200}
           height={1200}
           className="w-[420px] h-[420px] sm:w-[560px] sm:h-[560px]"
+        />
+      </motion.div>
+
+      {/* Cooler 2 — lower left, near the end of the grid, smaller/fainter
+          so it reads as background depth rather than a mirrored duplicate */}
+      <motion.div
+        aria-hidden="true"
+        style={{ rotate: rotateB }}
+        className="pointer-events-none absolute bottom-0 left-0 flex items-end justify-start -translate-x-1/4 translate-y-1/4 sm:-translate-x-1/3 opacity-[0.14] [mask-image:radial-gradient(circle,black_40%,transparent_72%)]"
+      >
+        <Image
+          src="/images/decor/services-rotator.png"
+          alt=""
+          width={1200}
+          height={1200}
+          className="w-[280px] h-[280px] sm:w-[380px] sm:h-[380px]"
         />
       </motion.div>
 
